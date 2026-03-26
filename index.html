@@ -748,19 +748,15 @@ function navigate(dir){
       sel('backBtn').disabled=false;
       renderDots();return;
     }
-current = Math.max(1, current - 1);
-}
-
-sel('step' + current).classList.add('active');
-
-const progress = Math.round((current / total) * 100);
-sel('progressBar').style.width = progress + '%';
-sel('progressLbl').textContent = 'Step ' + current + ' / ' + total;
-sel('progressPct').textContent = progress + '%';
-
-sel('backBtn').disabled = current === 1;
-
-renderDots();
+    current=Math.max(1,current-1);
+  }
+  const el=sel('step'+current);
+  if(el)el.classList.add('active');
+  sel('progressBar').style.width=(current/total*100)+'%';
+  sel('progressLbl').textContent='Step '+current+' / '+total;
+  sel('progressPct').textContent=Math.round(current/total*100)+'%';
+  sel('backBtn').disabled=current===1;
+  renderDots();
 }
 
 function exportImage(){
