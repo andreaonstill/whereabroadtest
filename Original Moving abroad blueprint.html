@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Move Abroad Blueprint</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#6C63FF;--blue:#00C2FF;--dark:#1a1a2e;
+  --card:#ffffff;--text:#2d2d3a;--sub:#6b7280;--border:#e8e8f0;
+  --green:#1D9E75;--amber:#EF9F27;--red:#E24B4A;
+  --green-bg:#E1F5EE;--amber-bg:#FAEEDA;--red-bg:#FCEBEB;
+}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#6C63FF 0%,#4a90d9 50%,#00C2FF 100%);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 40px}
+.app{width:100%;max-width:460px}
+
+/* Progress */
+.progress-wrap{margin-bottom:18px}
+.progress-track{height:5px;background:rgba(255,255,255,.25);border-radius:10px;overflow:hidden}
+.progress-fill{height:5px;background:#fff;border-radius:10px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.progress-meta{display:flex;justify-content:space-between;margin-top:6px}
+.progress-meta span{font-size:11px;color:rgba(255,255,255,.75);font-weight:500}
+
+/* Card */
+.card{background:#fff;border-radius:24px;padding:28px 28px 22px;box-shadow:0 24px 60px rgba(0,0,0,.18);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(0,194,255,.08));border-radius:50%}
+
+/* Score bubble */
+.score-bubble{position:absolute;top:22px;right:22px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#6C63FF,#00C2FF);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(108,99,255,.4)}
+.score-bubble-num{font-size:16px;font-weight:700;color:#fff;line-height:1}
+.score-bubble-lbl{font-size:8px;color:rgba(255,255,255,.85);font-weight:500;margin-top:1px}
+
+/* Step header */
+.step-tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);background:#EEEDFE;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+.step-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.25;padding-right:68px}
+.step-desc{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:20px;padding-right:4px}
+
+/* Fields */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.sel-wrap{position:relative}
+.sel-wrap::after{content:"▾";position:absolute;right:13px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--sub);font-size:12px}
+select{width:100%;padding:11px 32px 11px 13px;font-size:13px;font-family:'Poppins',sans-serif;background:#f9f9fc;color:var(--text);border:1.5px solid var(--border);border-radius:12px;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .2s,box-shadow .2s;font-weight:500}
+select:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(108,99,255,.12)}
+textarea{width:100%;padding:11px 13px;font-size:13px;font-family:'Poppins',sans-serif;background:#f9f9fc;color:var(--text);border:1.5px solid var(--border);border-radius:12px;outline:none;resize:vertical;min-height:78px;line-height:1.6;transition:border-color .2s;font-weight:400}
+textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(108,99,255,.12)}
+
+/* Sliders */
+.rating-group{display:flex;flex-direction:column;gap:10px}
+.rating-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px}
+.rating-row span:first-child{font-size:12px;color:var(--text);font-weight:500}
+.rating-row input[type=range]{width:120px;accent-color:var(--purple);height:4px}
+.rating-val{font-size:12px;font-weight:700;color:var(--purple);min-width:14px;text-align:right}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:6px 13px;border:1.5px solid var(--border);border-radius:99px;font-size:11px;cursor:pointer;color:var(--sub);background:#fff;transition:all .15s;user-select:none;font-weight:600}
+.chip:hover{border-color:#AFA9EC;color:var(--purple)}
+.chip.selected{background:#EEEDFE;color:#534AB7;border-color:#AFA9EC}
+
+/* Dots nav */
+.dots{display:flex;gap:6px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .25s}
+.dot.done{background:var(--purple);opacity:.5}
+.dot.active{background:var(--purple);transform:scale(1.4)}
+
+/* Buttons */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.btn{padding:10px 22px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text);transition:all .18s;font-family:'Poppins',sans-serif}
+.btn:hover:not(:disabled){background:#f5f5ff;border-color:#AFA9EC}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn.primary{background:linear-gradient(135deg,#6C63FF,#00C2FF);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(108,99,255,.35)}
+.btn.primary:hover{opacity:.92;box-shadow:0 6px 18px rgba(108,99,255,.45)}
+.btn.secondary{background:#EEEDFE;color:#534AB7;border-color:#AFA9EC}
+.btn.secondary:hover{background:#CECBF6}
+.btn.export-pdf{background:linear-gradient(135deg,#6C63FF,#00C2FF);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(108,99,255,.3)}
+.btn.export-img{background:linear-gradient(135deg,#E24B4A,#ff6b6b);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(226,75,74,.3)}
+.btn.ai-plan{background:linear-gradient(135deg,#1D9E75,#00C2FF);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(29,158,117,.3)}
+
+.step{display:none}.step.active{display:block}
+
+/* SUMMARY */
+.summary-hero{background:linear-gradient(135deg,#6C63FF,#00C2FF);border-radius:18px;padding:24px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.summary-hero::before{content:'';position:absolute;top:-30px;left:-30px;width:120px;height:120px;background:rgba(255,255,255,.08);border-radius:50%}
+.summary-hero::after{content:'';position:absolute;bottom:-20px;right:-20px;width:90px;height:90px;background:rgba(255,255,255,.06);border-radius:50%}
+.summary-score-big{font-size:58px;font-weight:800;color:#fff;line-height:1;position:relative;z-index:1}
+.summary-badge{display:inline-block;padding:5px 18px;border-radius:99px;background:rgba(255,255,255,.22);font-size:12px;font-weight:600;color:#fff;margin-top:8px;border:1px solid rgba(255,255,255,.35);position:relative;z-index:1}
+.summary-sub{font-size:11px;color:rgba(255,255,255,.7);margin-top:6px;position:relative;z-index:1}
+
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.cat-card{background:#f9f9fc;border-radius:14px;padding:13px 14px;border:1px solid var(--border)}
+.cat-card-label{font-size:10px;color:var(--sub);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.cat-card-score{font-size:22px;font-weight:800;margin-bottom:6px}
+.cat-bar-bg{height:4px;background:var(--border);border-radius:4px}
+.cat-bar-fill{height:4px;border-radius:4px;transition:width .6s}
+
+.answers-section{margin-bottom:16px}
+.answers-title{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.ans-row{display:flex;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)}
+.ans-lbl{color:var(--sub);min-width:130px;flex-shrink:0;font-weight:500}
+.ans-val{color:var(--text);font-weight:600;flex:1}
+
+.export-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.export-row .btn{flex:1;min-width:120px;font-size:12px;padding:10px 14px;text-align:center}
+
+/* Country recommendations */
+.rec-section{margin-bottom:16px}
+.rec-title{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.rec-card{border-radius:16px;padding:14px 16px;margin-bottom:10px;border:1.5px solid var(--border);position:relative;overflow:hidden}
+.rec-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.rec-card.match-1::before{background:linear-gradient(180deg,#6C63FF,#00C2FF)}
+.rec-card.match-2::before{background:linear-gradient(180deg,#1D9E75,#00C2FF)}
+.rec-card.match-3::before{background:linear-gradient(180deg,#EF9F27,#E24B4A)}
+.rec-rank{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.rec-rank.r1{color:#6C63FF}.rec-rank.r2{color:#1D9E75}.rec-rank.r3{color:#EF9F27}
+.rec-country{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
+.rec-why{font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:8px}
+.rec-tags{display:flex;flex-wrap:wrap;gap:5px}
+.rec-tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;background:#f0f0f8;color:#534AB7}
+.rec-tag.green{background:#E1F5EE;color:#0F6E56}
+.rec-tag.amber{background:#FAEEDA;color:#854F0B}
+.rec-tag.red{background:#FCEBEB;color:#A32D2D}
+.gap-section{background:#f9f9fc;border-radius:14px;padding:13px 15px;margin-bottom:16px;border:1px solid var(--border)}
+.gap-title{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.gap-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;font-size:12px}
+.gap-dot{width:6px;height:6px;border-radius:50%;background:#E24B4A;margin-top:4px;flex-shrink:0}
+.gap-dot.warn{background:#EF9F27}
+.gap-text{color:var(--text);line-height:1.5}
+
+/* Country selector grouped */
+optgroup{font-size:11px;color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:12.5%"></div></div>
+    <div class="progress-meta"><span id="progressLbl">Step 1 / 8</span><span id="progressPct">12%</span></div>
+  </div>
+
+  <div class="card">
+    <div class="score-bubble">
+      <div class="score-bubble-num" id="scoreNum">0%</div>
+      <div class="score-bubble-lbl">Ready</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step active" id="step1">
+      <div class="step-tag">Step 1 — Motivation</div>
+      <div class="step-title">Why do you want to move? 🌍</div>
+      <div class="step-desc">Your "why" is everything. People who move for clear, intentional reasons adapt faster and thrive longer. Let's figure yours out.</div>
+      <div class="field"><label>Main reason for moving abroad</label>
+        <div class="sel-wrap"><select id="mainReason" onchange="score()">
+          <option value="">Choose your reason…</option>
+          <option value="3">Career opportunities</option>
+          <option value="3">Higher education</option>
+          <option value="3">Cultural experience</option>
+          <option value="3">Language learning</option>
+          <option value="3">Better quality of life</option>
+          <option value="3">Adventure / personal growth</option>
+          <option value="3">Financial strategy (ROI move)</option>
+          <option value="2">Relationship / family</option>
+          <option value="1">Escaping my current situation</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Temporary or permanent?</label>
+        <div class="sel-wrap"><select id="moveType" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="2">Temporary — under 1 year</option>
+          <option value="3">Medium-term — 1 to 3 years</option>
+          <option value="3">Long-term — 3+ years</option>
+          <option value="3">Permanent, I'm not coming back</option>
+          <option value="1">Honestly not sure yet</option>
+        </select></div>
+      </div>
+      <div class="field"><label>What does success abroad look like to you?</label>
+        <textarea id="successVision" placeholder="e.g. Landing a job in finance in NYC after studying in Brussels…" oninput="score()"></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step2">
+      <div class="step-tag">Step 2 — Lifestyle</div>
+      <div class="step-title">What kind of life do you want? ✨</div>
+      <div class="step-desc">Different countries suit different priorities. Rate what matters most — this shapes your destination match.</div>
+      <div class="field"><label>Rate each (1 = doesn't matter, 5 = essential)</label>
+        <div class="rating-group" id="ratingGroup">
+          <div class="rating-row"><span>Salary / income</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+          <div class="rating-row"><span>Social life &amp; nightlife</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+          <div class="rating-row"><span>Safety &amp; stability</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+          <div class="rating-row"><span>Warm weather</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+          <div class="rating-row"><span>Career growth</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+          <div class="rating-row"><span>Work-life balance</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+          <div class="rating-row"><span>Low cost of living</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+          <div class="rating-row"><span>Cultural openness</span><input type="range" min="1" max="5" value="3" step="1" oninput="updateRating(this);score()"><span class="rating-val">3</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" id="step3">
+      <div class="step-tag">Step 3 — Your profile</div>
+      <div class="step-title">Let's narrow your options 🎯</div>
+      <div class="step-desc">These filters help us match you to the right destination and visa route.</div>
+      <div class="field"><label>Your age range</label>
+        <div class="sel-wrap"><select id="ageRange" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="3">15–25</option><option value="3">26–30</option>
+          <option value="3">31–35</option><option value="2">36–45</option><option value="2">46+</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Languages you speak</label>
+        <div class="chips" id="langChips">
+          <div class="chip" onclick="toggleChip(this);score()">English</div>
+          <div class="chip" onclick="toggleChip(this);score()">Spanish</div>
+          <div class="chip" onclick="toggleChip(this);score()">French</div>
+          <div class="chip" onclick="toggleChip(this);score()">German</div>
+          <div class="chip" onclick="toggleChip(this);score()">Portuguese</div>
+          <div class="chip" onclick="toggleChip(this);score()">Dutch</div>
+          <div class="chip" onclick="toggleChip(this);score()">Italian</div>
+          <div class="chip" onclick="toggleChip(this);score()">Mandarin</div>
+          <div class="chip" onclick="toggleChip(this);score()">Arabic</div>
+          <div class="chip" onclick="toggleChip(this);score()">Japanese</div>
+          <div class="chip" onclick="toggleChip(this);score()">Other</div>
+        </div>
+      </div>
+      <div class="field"><label>Highest education level</label>
+        <div class="sel-wrap"><select id="education" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="1">High school / secondary</option>
+          <option value="2">Vocational / technical diploma</option>
+          <option value="3">Bachelor's degree</option>
+          <option value="3">Master's degree</option>
+          <option value="3">PhD</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Your passport nationality</label>
+        <div class="sel-wrap"><select id="passport" onchange="score()">
+          <option value="">Choose…</option>
+          <optgroup label="Strong access">
+            <option value="3">EU / EEA</option>
+            <option value="3">UK</option>
+            <option value="3">USA</option>
+            <option value="3">Canada</option>
+            <option value="3">Australia / New Zealand</option>
+            <option value="3">Japan</option>
+            <option value="3">South Korea</option>
+          </optgroup>
+          <optgroup label="Good access">
+            <option value="2">Mexico</option>
+            <option value="2">Brazil</option>
+            <option value="2">Argentina</option>
+            <option value="2">Chile</option>
+            <option value="2">Colombia</option>
+            <option value="2">Other Latin American</option>
+            <option value="2">South Africa</option>
+            <option value="2">Malaysia</option>
+            <option value="2">Singapore</option>
+          </optgroup>
+          <optgroup label="Requires more planning">
+            <option value="1">Other African</option>
+            <option value="1">Other Asian</option>
+            <option value="1">Middle Eastern</option>
+            <option value="1">Other</option>
+          </optgroup>
+        </select></div>
+      </div>
+      <div class="field"><label>How long do you want to stay?</label>
+        <div class="sel-wrap"><select id="stayLength" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="2">Under 6 months</option>
+          <option value="3">1 year</option>
+          <option value="3">2–3 years</option>
+          <option value="3">5+ years</option>
+          <option value="3">Permanently</option>
+        </select></div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" id="step4">
+      <div class="step-tag">Step 4 — Pathway</div>
+      <div class="step-title">How are you planning to move? 🛫</div>
+      <div class="step-desc">There are several routes. Knowing yours makes the visa process way less overwhelming.</div>
+      <div class="field"><label>Your main pathway</label>
+        <div class="sel-wrap"><select id="pathway" onchange="score()">
+          <option value="">Choose a pathway…</option>
+          <option value="3">Study abroad (student visa)</option>
+          <option value="3">Work visa (employer-sponsored)</option>
+          <option value="3">Working holiday visa (18–35)</option>
+          <option value="3">Digital nomad / freelance visa</option>
+          <option value="3">Entrepreneur / startup visa</option>
+          <option value="2">Family / partner visa</option>
+          <option value="2">Retirement / passive income visa</option>
+          <option value="1">Not sure yet</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Destination country in mind?</label>
+        <div class="sel-wrap"><select id="targetCountry" onchange="score()">
+          <option value="">Choose or leave open…</option>
+          <option value="1">No preference — help me choose</option>
+          <optgroup label="Europe">
+            <option value="3">Belgium 🇧🇪</option>
+            <option value="3">Spain 🇪🇸</option>
+            <option value="3">Portugal 🇵🇹</option>
+            <option value="3">Germany 🇩🇪</option>
+            <option value="3">Netherlands 🇳🇱</option>
+            <option value="3">France 🇫🇷</option>
+            <option value="3">UK 🇬🇧</option>
+            <option value="3">Italy 🇮🇹</option>
+            <option value="3">Switzerland 🇨🇭</option>
+            <option value="3">Ireland 🇮🇪</option>
+            <option value="3">Sweden 🇸🇪</option>
+            <option value="3">Norway 🇳🇴</option>
+            <option value="3">Denmark 🇩🇰</option>
+            <option value="3">Finland 🇫🇮</option>
+            <option value="3">Austria 🇦🇹</option>
+            <option value="3">Czech Republic 🇨🇿</option>
+            <option value="3">Poland 🇵🇱</option>
+            <option value="3">Estonia 🇪🇪</option>
+            <option value="3">Croatia 🇭🇷</option>
+            <option value="3">Greece 🇬🇷</option>
+          </optgroup>
+          <optgroup label="North America">
+            <option value="3">USA 🇺🇸</option>
+            <option value="3">Canada 🇨🇦</option>
+            <option value="3">Mexico 🇲🇽</option>
+          </optgroup>
+          <optgroup label="Latin America">
+            <option value="3">Colombia 🇨🇴</option>
+            <option value="3">Argentina 🇦🇷</option>
+            <option value="3">Chile 🇨🇱</option>
+            <option value="3">Brazil 🇧🇷</option>
+            <option value="3">Costa Rica 🇨🇷</option>
+            <option value="3">Panama 🇵🇦</option>
+            <option value="3">Uruguay 🇺🇾</option>
+          </optgroup>
+          <optgroup label="Asia Pacific">
+            <option value="3">Japan 🇯🇵</option>
+            <option value="3">Singapore 🇸🇬</option>
+            <option value="3">South Korea 🇰🇷</option>
+            <option value="3">Thailand 🇹🇭</option>
+            <option value="3">Vietnam 🇻🇳</option>
+            <option value="3">Indonesia 🇮🇩</option>
+            <option value="3">Australia 🇦🇺</option>
+            <option value="3">New Zealand 🇳🇿</option>
+          </optgroup>
+          <optgroup label="Middle East & Africa">
+            <option value="3">UAE / Dubai 🇦🇪</option>
+            <option value="3">South Africa 🇿🇦</option>
+            <option value="3">Morocco 🇲🇦</option>
+          </optgroup>
+          <option value="2">Other</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Work experience in your field</label>
+        <div class="sel-wrap"><select id="workExp" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="1">No experience yet</option>
+          <option value="1">Less than 1 year</option>
+          <option value="2">1–3 years</option>
+          <option value="3">3–5 years</option>
+          <option value="3">5+ years</option>
+        </select></div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step" id="step5">
+      <div class="step-tag">Step 5 — Legal</div>
+      <div class="step-title">How ready are you legally? 📋</div>
+      <div class="step-desc">Tap everything you already have sorted. The more ticked, the smoother your move.</div>
+      <div class="field"><label>Documents you already have ready</label>
+        <div class="chips" id="docsChips">
+          <div class="chip" onclick="toggleChip(this);score()">Valid passport (6+ months)</div>
+          <div class="chip" onclick="toggleChip(this);score()">Criminal background check</div>
+          <div class="chip" onclick="toggleChip(this);score()">Education certificates</div>
+          <div class="chip" onclick="toggleChip(this);score()">Proof of funds</div>
+          <div class="chip" onclick="toggleChip(this);score()">Health insurance</div>
+          <div class="chip" onclick="toggleChip(this);score()">Employment letter</div>
+          <div class="chip" onclick="toggleChip(this);score()">International CV / résumé</div>
+          <div class="chip" onclick="toggleChip(this);score()">None yet</div>
+        </div>
+      </div>
+      <div class="field"><label>How familiar are you with the visa process?</label>
+        <div class="sel-wrap"><select id="visaFamiliarity" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="0">Haven't researched yet</option>
+          <option value="1">Done some basic research</option>
+          <option value="2">Know the requirements well</option>
+          <option value="3">Already started my application</option>
+        </select></div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step" id="step6">
+      <div class="step-tag">Step 6 — Money</div>
+      <div class="step-title">Are you financially set? 💸</div>
+      <div class="step-desc">Moving costs more than a flight. Aim for 3–6 months of living expenses saved before you go.</div>
+      <div class="field"><label>Your savings right now</label>
+        <div class="sel-wrap"><select id="savings" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="0">Less than 1 month of expenses</option>
+          <option value="1">1–2 months saved</option>
+          <option value="2">3–5 months saved</option>
+          <option value="3">6+ months saved</option>
+          <option value="3">Job offer or funding already secured</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Costs you've already planned for</label>
+        <div class="chips" id="costsChips">
+          <div class="chip" onclick="toggleChip(this);score()">Visa fees</div>
+          <div class="chip" onclick="toggleChip(this);score()">Flights</div>
+          <div class="chip" onclick="toggleChip(this);score()">Initial accommodation</div>
+          <div class="chip" onclick="toggleChip(this);score()">Rental deposit</div>
+          <div class="chip" onclick="toggleChip(this);score()">Health insurance</div>
+          <div class="chip" onclick="toggleChip(this);score()">Emergency fund</div>
+          <div class="chip" onclick="toggleChip(this);score()">Language classes</div>
+          <div class="chip" onclick="toggleChip(this);score()">Shipping / moving costs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step" id="step7">
+      <div class="step-tag">Step 7 — Culture</div>
+      <div class="step-title">Ready for culture shock? 🤯</div>
+      <div class="step-desc">Most people underestimate this one. Adapting to a new culture is a skill — and it takes real prep.</div>
+      <div class="field"><label>Time spent living abroad before</label>
+        <div class="sel-wrap"><select id="priorAbroad" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="0">Never lived abroad</option>
+          <option value="1">Short holidays only</option>
+          <option value="1">One semester abroad</option>
+          <option value="2">6–12 months abroad</option>
+          <option value="3">1+ years abroad</option>
+          <option value="3">Lived in multiple countries</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Where do you feel least prepared?</label>
+        <div class="chips" id="cultureChips">
+          <div class="chip" onclick="toggleChip(this);score()">Language barrier</div>
+          <div class="chip" onclick="toggleChip(this);score()">Work culture</div>
+          <div class="chip" onclick="toggleChip(this);score()">Social norms</div>
+          <div class="chip" onclick="toggleChip(this);score()">Bureaucracy</div>
+          <div class="chip" onclick="toggleChip(this);score()">Food &amp; daily habits</div>
+          <div class="chip" onclick="toggleChip(this);score()">Making local friends</div>
+          <div class="chip" onclick="toggleChip(this);score()">Loneliness / homesickness</div>
+          <div class="chip" onclick="toggleChip(this);score()">I feel well prepared ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step" id="step8">
+      <div class="step-tag">Step 8 — Community</div>
+      <div class="step-title">Who's got your back? 🤝</div>
+      <div class="step-desc">People who settle fastest are the ones who build community early. Let's see where you stand.</div>
+      <div class="field"><label>Do you know anyone in your destination?</label>
+        <div class="sel-wrap"><select id="knownContacts" onchange="score()">
+          <option value="">Choose…</option>
+          <option value="0">Nope, starting from zero</option>
+          <option value="1">A few casual connections</option>
+          <option value="2">Close friends or family there</option>
+          <option value="3">Professional contacts there</option>
+        </select></div>
+      </div>
+      <div class="field"><label>Communities you plan to join</label>
+        <div class="chips" id="communityChips">
+          <div class="chip" onclick="toggleChip(this);score()">Expat / Facebook groups</div>
+          <div class="chip" onclick="toggleChip(this);score()">Alumni network</div>
+          <div class="chip" onclick="toggleChip(this);score()">Language exchange</div>
+          <div class="chip" onclick="toggleChip(this);score()">Meetup / local events</div>
+          <div class="chip" onclick="toggleChip(this);score()">LinkedIn / professional</div>
+          <div class="chip" onclick="toggleChip(this);score()">Sports / hobby club</div>
+          <div class="chip" onclick="toggleChip(this);score()">Cultural community</div>
+        </div>
+      </div>
+      <div class="field"><label>Anything else on your mind?</label>
+        <textarea id="extraNotes" placeholder="e.g. Moving with a partner, leaving a stable job, have a target date…" oninput="score()"></textarea>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="step" id="stepSummary">
+      <div class="summary-hero">
+        <div style="font-size:12px;color:rgba(255,255,255,.75);margin-bottom:4px;font-weight:500">YOUR READINESS SCORE</div>
+        <div class="summary-score-big" id="finalScore">—</div>
+        <div class="summary-badge" id="readinessBadge">—</div>
+        <div class="summary-sub">The Move Abroad Blueprint</div>
+      </div>
+
+      <div class="cat-grid" id="catGrid"></div>
+
+      <div class="rec-section">
+        <div class="rec-title">Your top 3 country matches</div>
+        <div id="recCards"></div>
+      </div>
+
+      <div class="gap-section" id="gapSection">
+        <div class="gap-title">Your biggest gaps to fix first</div>
+        <div id="gapItems"></div>
+      </div>
+
+      <div class="answers-section">
+        <div class="answers-title">Your answers at a glance</div>
+        <div id="summaryRows"></div>
+      </div>
+
+      <div class="export-row">
+        <button class="btn ai-plan" onclick="getAIPlan()">✦ Get my action plan</button>
+        <button class="btn export-pdf" onclick="exportPDF()">⬇ PDF report</button>
+        <button class="btn export-img" onclick="exportImage()">📸 Share to Instagram</button>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav">
+      <button class="btn" id="backBtn" onclick="navigate(-1)" disabled>← Back</button>
+      <div class="dots" id="stepDots"></div>
+      <button class="btn primary" id="nextBtn" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let current=1;const total=8;
+function updateRating(el){el.nextElementSibling.textContent=el.value}
+function toggleChip(el){el.classList.toggle('selected')}
+function getChips(id){return Array.from(document.querySelectorAll('#'+id+' .chip.selected')).map(c=>c.textContent.trim()).join(', ')||'None selected'}
+function sel(id){return document.getElementById(id)}
+function selVal(id){const e=sel(id);return e?e.value:''}
+function selText(id){const e=sel(id);if(!e)return'—';return e.options[e.selectedIndex]?.text||'—'}
+
+function calcScores(){
+  const r1=parseInt(selVal('mainReason'))||0;
+  const r2=parseInt(selVal('moveType'))||0;
+  const r3=selVal('successVision').trim().length>10?3:selVal('successVision').trim().length>0?1:0;
+  const motivation=Math.round(((r1+r2+r3)/9)*100);
+
+  const docs=document.querySelectorAll('#docsChips .chip.selected').length;
+  const hasNone=Array.from(document.querySelectorAll('#docsChips .chip.selected')).some(c=>c.textContent.includes('None'));
+  const docScore=hasNone?0:Math.min(docs,7);
+  const visaScore=parseInt(selVal('visaFamiliarity'))||0;
+  const legal=Math.round(((docScore+visaScore)/10)*100);
+
+  const savScore=parseInt(selVal('savings'))||0;
+  const costs=document.querySelectorAll('#costsChips .chip.selected').length;
+  const financial=Math.round(((savScore+Math.min(costs,8))/11)*100);
+
+  const priorScore=parseInt(selVal('priorAbroad'))||0;
+  const prepared=Array.from(document.querySelectorAll('#cultureChips .chip.selected')).some(c=>c.textContent.includes('well prepared'));
+  const gapCount=document.querySelectorAll('#cultureChips .chip.selected').length-(prepared?1:0);
+  const cultural=Math.max(0,Math.round(((priorScore+(prepared?3:0)-Math.min(gapCount,4)+4)/10)*100));
+
+  const contactScore=parseInt(selVal('knownContacts'))||0;
+  const communities=document.querySelectorAll('#communityChips .chip.selected').length;
+  const support=Math.round(((contactScore+Math.min(communities,7))/10)*100);
+
+  const tot=Math.round((motivation+legal+financial+cultural+support)/5);
+  return{motivation,legal,financial,cultural,support,total:Math.min(tot,100)};
+}
+
+function scoreColor(p){
+  if(p>=70)return{bar:'#1D9E75',text:'#0F6E56',bg:'#E1F5EE',label:'Ready to go 🚀'};
+  if(p>=40)return{bar:'#EF9F27',text:'#854F0B',bg:'#FAEEDA',label:'Getting there ✈️'};
+  return{bar:'#E24B4A',text:'#A32D2D',bg:'#FCEBEB',label:'Needs work 🛠️'};
+}
+
+function score(){
+  const s=calcScores();
+  sel('scoreNum').textContent=s.total+'%';
+}
+
+function renderDots(){
+  const d=sel('stepDots');d.innerHTML='';
+  for(let i=1;i<=total;i++){
+    const dot=document.createElement('div');
+    dot.className='dot'+(i<current?' done':i===current?' active':'');
+    d.appendChild(dot);
+  }
+}
+
+function buildSummary(){
+  const s=calcScores();
+  const c=scoreColor(s.total);
+  sel('finalScore').textContent=s.total+'%';
+  sel('readinessBadge').textContent=c.label;
+
+  const cats=[
+    {label:'Motivation',val:s.motivation},
+    {label:'Legal prep',val:s.legal},
+    {label:'Finances',val:s.financial},
+    {label:'Culture',val:s.cultural},
+    {label:'Support',val:s.support},
+  ];
+  sel('catGrid').innerHTML=cats.map(({label,val})=>{
+    const cc=scoreColor(val);
+    return`<div class="cat-card"><div class="cat-card-label">${label}</div><div class="cat-card-score" style="color:${cc.bar}">${val}%</div><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${val}%;background:${cc.bar}"></div></div></div>`;
+  }).join('');
+
+  // --- COUNTRY RECOMMENDATION ENGINE ---
+  const reason=selText('mainReason');
+  const pathway=selText('pathway');
+  const passport=selText('passport');
+  const savings=selText('savings');
+  const langs=getChips('langChips');
+  const sliders=document.querySelectorAll('#ratingGroup input');
+  const wantSalary=parseInt(sliders[0]?.value||3);
+  const wantSocial=parseInt(sliders[1]?.value||3);
+  const wantSafety=parseInt(sliders[2]?.value||3);
+  const wantWarm=parseInt(sliders[3]?.value||3);
+  const wantCareer=parseInt(sliders[4]?.value||3);
+  const wantWLB=parseInt(sliders[5]?.value||3);
+  const wantLowCost=parseInt(sliders[6]?.value||3);
+  const isStudy=pathway.includes('Study')||reason.includes('education');
+  const isWork=pathway.includes('Work visa')||pathway.includes('employer');
+  const isNomad=pathway.includes('nomad')||pathway.includes('freelance');
+  const isLatam=passport.includes('Mexico')||passport.includes('Latin')||passport.includes('Colombia')||passport.includes('Brazil')||passport.includes('Argentina')||passport.includes('Chile');
+  const speaksSpanish=langs.includes('Spanish');
+  const speaksFrench=langs.includes('French');
+  const speaksGerman=langs.includes('German');
+  const lowBudget=savings.includes('1 month')||savings.includes('1–2');
+  const hasEU=passport.includes('EU');
+  const isPermanent=selText('moveType').includes('Permanent')||selText('moveType').includes('permanent');
+
+  const allCountries=[
+    {name:'Portugal 🇵🇹',tags:['Low cost of living','English-friendly','Digital nomad visa','Sunny & warm','Safe & stable'],
+     score(){let sc=60;if(wantLowCost>=4)sc+=15;if(wantWarm>=4)sc+=12;if(isNomad)sc+=15;if(speaksSpanish)sc+=10;if(isLatam)sc+=8;if(wantWLB>=4)sc+=10;if(lowBudget)sc+=10;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Portugal is a ${sc}% match for your profile. ${wantLowCost>=4?'Your priority on low cost of living fits perfectly — Lisbon is 40% cheaper than NYC. ':''}${speaksSpanish?'As a Spanish speaker, Portuguese feels natural within weeks. ':''}${isNomad?'The D8 Digital Nomad Visa is one of Europe\'s most accessible. ':''}${isLatam?'Portugal has a large, welcoming Latin American community with strong cultural ties. ':''}`}},
+
+    {name:'Spain 🇪🇸',tags:['Spanish-speaking country','Vibrant social life','Warm weather','Strong student scene','EU access'],
+     score(){let sc=55;if(speaksSpanish)sc+=20;if(wantSocial>=4)sc+=12;if(wantWarm>=4)sc+=12;if(isStudy)sc+=12;if(isLatam)sc+=10;if(wantLowCost>=3)sc+=8;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Spain is a ${sc}% match. ${speaksSpanish?'You already speak the language — zero adaptation barrier from day one. ':''}${wantSocial>=4?'Spain\'s social culture and nightlife are world-class. ':''}${isLatam?'The Latin American expat community in Madrid and Barcelona is massive and welcoming. ':''}${isStudy?'Student visas are straightforward and Spanish universities are internationally recognised. ':''}`}},
+
+    {name:'Germany 🇩🇪',tags:['High salaries','Top career hub','Strong economy','Skilled worker visa','Finance & tech'],
+     score(){let sc=50;if(wantSalary>=4)sc+=18;if(wantCareer>=4)sc+=18;if(isWork)sc+=15;if(speaksGerman)sc+=12;if(s.financial>=60)sc+=10;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Germany is a ${sc}% match. ${wantSalary>=4?'German salaries in finance and tech are among Europe\'s highest. ':''}${wantCareer>=4?'Berlin and Munich are the top career hubs in continental Europe. ':''}The Skilled Worker Visa (Fachkräfteeinwanderungsgesetz) is tailored for internationally qualified professionals. ${speaksGerman?'Your German is a huge professional advantage. ':''}`}},
+
+    {name:'Netherlands 🇳🇱',tags:['English widely spoken','Finance & fintech hub','High salaries','Expat infrastructure','EU gateway'],
+     score(){let sc=50;if(wantSalary>=4)sc+=15;if(wantCareer>=4)sc+=15;if(isWork||isStudy)sc+=12;if(!speaksGerman&&!speaksFrench)sc+=10;if(wantSafety>=4)sc+=8;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Netherlands is a ${sc}% match. ${wantSalary>=4?'Amsterdam is one of Europe\'s top financial centres — salaries reflect it. ':''}The Netherlands has the highest English proficiency in continental Europe, making the transition seamless. ${isStudy?'Rotterdam School of Management and Amsterdam\'s universities are globally ranked. ':''}`}},
+
+    {name:'Belgium 🇧🇪',tags:['EU capital & HQ hub','Finance & policy careers','Multicultural','Central location','French & Dutch'],
+     score(){let sc=48;if(wantCareer>=4)sc+=14;if(isStudy)sc+=16;if(speaksFrench)sc+=14;if(speaksGerman)sc+=8;if(wantSafety>=4)sc+=10;if(isWork)sc+=10;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Belgium is a ${sc}% match. ${isStudy?'Brussels is home to top European finance and policy schools — perfect for building an international career. ':''}As capital of the EU, Brussels gives unmatched access to international organisations, banks, and financial institutions. ${speaksFrench?'Your French opens the door directly into the francophone professional world. ':''}`}},
+
+    {name:'Canada 🇨🇦',tags:['Immigration-friendly','Path to permanent residency','Safe','Multicultural','Strong job market'],
+     score(){let sc=52;if(isLatam)sc+=10;if(wantSafety>=4)sc+=12;if(s.legal>=50)sc+=10;if(wantCareer>=3)sc+=10;if(isPermanent)sc+=15;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Canada is a ${sc}% match. ${isLatam?'Canada has one of the most welcoming immigration systems for Latin Americans. ':''}${isPermanent?'For a permanent move, Canada\'s Express Entry and PR pathways are the clearest and most accessible in the world. ':''}${wantSafety>=4?'Consistently ranked among the safest and most inclusive countries globally. ':''}`}},
+
+    {name:'Mexico 🇲🇽',tags:['Very low cost','No language barrier','Warm climate','Booming nomad hub','Close to US'],
+     score(){let sc=40;if(speaksSpanish)sc+=15;if(wantLowCost>=5)sc+=18;if(wantWarm>=5)sc+=12;if(isNomad)sc+=15;if(isLatam)sc+=5;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Mexico City is a ${sc}% match. ${wantLowCost>=4?'CDMX costs a fraction of NYC while offering a world-class city experience. ':''}${isNomad?'Mexico City has become the #1 digital nomad hub in the Americas. ':''}${speaksSpanish?'No language barrier at all — full cultural immersion from day one. ':''}`}},
+
+    {name:'UAE / Dubai 🇦🇪',tags:['Zero income tax','Top finance salaries','Global career hub','Expat majority city','Fast-track lifestyle'],
+     score(){let sc=45;if(wantSalary>=5)sc+=20;if(wantCareer>=4)sc+=15;if(isWork)sc+=12;if(s.financial>=60)sc+=8;if(!wantWarm||wantWarm<=3)sc-=5;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Dubai is a ${sc}% match. ${wantSalary>=5?'Zero income tax and some of the highest finance salaries in the world. ':''}${wantCareer>=4?'Dubai\'s DIFC is a top-tier global financial hub alongside London and Singapore. ':''}Over 80% of Dubai\'s population is expat — it is a city built for international professionals like you.`}},
+
+    {name:'Ireland 🇮🇪',tags:['English-speaking EU','US company HQs','Latin-friendly','Tech & finance','Gateway to Europe'],
+     score(){let sc=48;if(!speaksFrench&&!speaksGerman)sc+=12;if(isWork&&wantCareer>=4)sc+=14;if(hasEU)sc+=15;if(isLatam&&!hasEU)sc+=8;if(wantCareer>=4)sc+=10;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Ireland is a ${sc}% match. English as the primary language removes every barrier. ${wantCareer>=4?'Dublin hosts the European HQs of Google, Meta, LinkedIn, Citibank, and dozens of global financial firms. ':''}${isLatam?'Ireland is one of the most accessible EU countries for Latin Americans entering the work visa system. ':''}`}},
+
+    {name:'Colombia 🇨🇴',tags:['Ultra low cost','Spanish','Digital nomad visa','Warm','Thriving expat scene'],
+     score(){let sc=38;if(speaksSpanish)sc+=15;if(wantLowCost>=5)sc+=20;if(isNomad)sc+=14;if(wantWarm>=4)sc+=12;if(isLatam)sc+=8;return sc},
+     why(){const sc=Math.min(this.score(),99);return`Colombia is a ${sc}% match. ${wantLowCost>=5?'Medellín and Bogotá offer an exceptional quality of life at a fraction of the cost of US or European cities. ':''}${isNomad?'Colombia\'s Digital Nomad Visa is among the easiest to obtain in Latin America. ':''}${speaksSpanish?'Zero language barrier and a vibrant, growing expat community. ':''}`}},
+  ];
+
+  const scored=allCountries.map(c=>({...c,sc:Math.min(c.score(),99)})).sort((a,b)=>b.sc-a.sc);
+  const top3=scored.slice(0,3);
+  const rankLabels=['#1 Best match','#2 Strong match','#3 Worth considering'];
+  const rankClasses=['r1','r2','r3'];
+  const cardClasses=['match-1','match-2','match-3'];
+
+  sel('recCards').innerHTML=top3.map((c,i)=>{
+    const why=c.why();
+    const tagHtml=c.tags.map((t,ti)=>`<span class="rec-tag ${ti===0?'green':ti===2?'amber':''}">${t}</span>`).join('');
+    return`<div class="rec-card ${cardClasses[i]}">
+      <div class="rec-rank ${rankClasses[i]}">${rankLabels[i]} — ${c.sc}% match</div>
+      <div class="rec-country">${c.name}</div>
+      <div class="rec-why">${why}</div>
+      <div class="rec-tags">${tagHtml}</div>
+    </div>`;
+  }).join('');
+
+  // --- GAPS ENGINE ---
+  const gaps=[];
+  if(s.financial<40)gaps.push({sev:'red',text:'Your savings need attention before you move — aim for at least 3 months of living expenses in the bank.'});
+  if(s.legal<40)gaps.push({sev:'red',text:'Your legal prep is behind — start researching visa requirements for your destination today.'});
+  if(s.legal>=40&&s.legal<70)gaps.push({sev:'warn',text:'Get your key documents ready: passport validity, background check, education certificates.'});
+  if(s.cultural<50)gaps.push({sev:'warn',text:'Culture shock is your biggest risk — connect with expats from your destination before you leave.'});
+  if(s.support<40)gaps.push({sev:'warn',text:'You\'re moving without a network — join destination-specific Facebook/Reddit groups immediately.'});
+  if(getChips('docsChips').includes('None'))gaps.push({sev:'red',text:'You have zero documents ready. Start with your passport and a criminal background check.'});
+  if(!selVal('visaFamiliarity')||selVal('visaFamiliarity')==='0')gaps.push({sev:'red',text:'You haven\'t researched your visa yet — this is the most critical step. Do it before anything else.'});
+  if(s.financial>=40&&s.financial<70)gaps.push({sev:'warn',text:'Plan your first 3 months of costs in detail: rent deposit, visa fees, flights, and an emergency buffer.'});
+  if(gaps.length===0)gaps.push({sev:'green',text:'No critical gaps detected — you\'re in strong shape. Focus on building your community and your 90-day action plan.'});
+  sel('gapItems').innerHTML=gaps.slice(0,4).map(g=>`<div class="gap-item"><div class="gap-dot ${g.sev==='warn'?'warn':''}"></div><div class="gap-text">${g.text}</div></div>`).join('');
+
+  const rows=[
+    ['Main reason',selText('mainReason')],
+    ['Type of move',selText('moveType')],
+    ['Success vision',selVal('successVision')||'—'],
+    ['Age range',selText('ageRange')],
+    ['Languages',getChips('langChips')],
+    ['Education',selText('education')],
+    ['Passport',selText('passport')],
+    ['Stay length',selText('stayLength')],
+    ['Pathway',selText('pathway')],
+    ['Destination',selText('targetCountry')],
+    ['Work experience',selText('workExp')],
+    ['Documents ready',getChips('docsChips')],
+    ['Visa familiarity',selText('visaFamiliarity')],
+    ['Savings',selText('savings')],
+    ['Costs planned',getChips('costsChips')],
+    ['Prior abroad',selText('priorAbroad')],
+    ['Cultural gaps',getChips('cultureChips')],
+    ['Contacts there',selText('knownContacts')],
+    ['Communities',getChips('communityChips')],
+  ];
+  sel('summaryRows').innerHTML=rows.map(([l,v])=>`<div class="ans-row"><span class="ans-lbl">${l}</span><span class="ans-val">${v}</span></div>`).join('');
+}
+
+function navigate(dir){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  if(dir===1&&current<=total){
+    if(current===total){
+      buildSummary();
+      sel('stepSummary').classList.add('active');
+      sel('nextBtn').style.display='none';
+      sel('progressBar').style.width='100%';
+      sel('progressLbl').textContent='Complete!';
+      sel('progressPct').textContent='100%';
+      renderDots();return;
+    }
+    current++;
+  }else if(dir===-1){
+    if(sel('stepSummary').classList.contains('active')){
+      sel('nextBtn').style.display='';
+      current=total;
+      sel('step'+current).classList.add('active');
+      sel('progressBar').style.width=(current/total*100)+'%';
+      sel('progressLbl').textContent='Step '+current+' / '+total;
+      sel('progressPct').textContent=Math.round(current/total*100)+'%';
+      sel('backBtn').disabled=false;
+      renderDots();return;
+    }
+    current=Math.max(1,current-1);
+  }
+  const el=sel('step'+current);
+  if(el)el.classList.add('active');
+  sel('progressBar').style.width=(current/total*100)+'%';
+  sel('progressLbl').textContent='Step '+current+' / '+total;
+  sel('progressPct').textContent=Math.round(current/total*100)+'%';
+  sel('backBtn').disabled=current===1;
+  renderDots();
+}
+
+function getAIPlan(){
+  const s=calcScores();
+  const summary=`Main reason: ${selText('mainReason')}, Move type: ${selText('moveType')}, Target country: ${selText('targetCountry')}, Pathway: ${selText('pathway')}, Passport: ${selText('passport')}, Age: ${selText('ageRange')}, Education: ${selText('education')}, Work experience: ${selText('workExp')}, Savings: ${selText('savings')}, Prior abroad: ${selText('priorAbroad')}, Languages: ${getChips('langChips')}, Documents ready: ${getChips('docsChips')}, Costs planned: ${getChips('costsChips')}, Cultural gaps: ${getChips('cultureChips')}, Communities: ${getChips('communityChips')}, Contacts: ${selText('knownContacts')}, Overall readiness: ${s.total}%, Motivation: ${s.motivation}%, Legal: ${s.legal}%, Financial: ${s.financial}%, Cultural: ${s.cultural}%, Support: ${s.support}%`;
+  if(typeof sendPrompt==='function'){
+    sendPrompt(`Based on my Move Abroad Blueprint: ${summary}. Please give me a personalised action plan with: 1) my top 3 recommended countries, 2) the best visa pathway for me, 3) my biggest gaps to fix first, and 4) a 90-day action plan.`);
+  }
+}
+
+function exportPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const s=calcScores();
+  const pageW=210;const M=18;const col=pageW-M*2;
+
+  // Header
+  doc.setFillColor(108,99,255);doc.rect(0,0,210,50,'F');
+  doc.setFillColor(55,138,221);doc.rect(110,0,100,50,'F');
+  [[30,10],[170,8],[60,38],[150,35],[190,20],[20,30]].forEach(([x,y])=>{
+    doc.setFillColor(255,255,255);doc.circle(x,y,0.7,'F');
+  });
+
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(8);doc.setFont(undefined,'bold');
+  doc.text('THE MOVE ABROAD BLUEPRINT',M,13);
+  doc.setFontSize(22);doc.text('Your Readiness Report',M,26);
+  doc.setFontSize(9);doc.setFont(undefined,'normal');
+  doc.text('Personalised for you · '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),M,35);
+
+  const rgb=s.total>=70?[29,158,117]:s.total>=40?[239,159,39]:[226,75,74];
+  doc.setFillColor(255,255,255);doc.circle(185,25,16,'F');
+  doc.setTextColor(...rgb);doc.setFontSize(20);doc.setFont(undefined,'bold');
+  doc.text(s.total+'%',185,22,{align:'center'});
+  doc.setFontSize(7);doc.setFont(undefined,'normal');doc.setTextColor(120,120,120);
+  doc.text('READINESS',185,29,{align:'center'});
+
+  let y=60;
+  const cats=[['Motivation',s.motivation],['Legal',s.legal],['Finances',s.financial],['Culture',s.cultural],['Support',s.support]];
+  const cardW=(col/5)-2;
+  cats.forEach(([lbl,val],i)=>{
+    const cx=M+i*(cardW+2.5);
+    const cc=val>=70?[29,158,117]:val>=40?[239,159,39]:[226,75,74];
+    const bgcc=val>=70?[225,245,238]:val>=40?[250,238,218]:[252,235,235];
+    doc.setFillColor(...bgcc);doc.roundedRect(cx,y,cardW,22,2,2,'F');
+    doc.setTextColor(...cc);doc.setFontSize(14);doc.setFont(undefined,'bold');
+    doc.text(val+'%',cx+cardW/2,y+11,{align:'center'});
+    doc.setFontSize(7);doc.setFont(undefined,'normal');
+    doc.text(lbl.toUpperCase(),cx+cardW/2,y+18,{align:'center'});
+    doc.setFillColor(220,220,220);doc.roundedRect(cx+2,y+20,cardW-4,2,1,1,'F');
+    doc.setFillColor(...cc);doc.roundedRect(cx+2,y+20,(cardW-4)*val/100,2,1,1,'F');
+  });
+  y+=32;
+
+  const verdictBg=s.total>=70?[225,245,238]:s.total>=40?[250,238,218]:[252,235,235];
+  doc.setFillColor(...verdictBg);doc.roundedRect(M,y,col,12,3,3,'F');
+  doc.setTextColor(...rgb);doc.setFontSize(11);doc.setFont(undefined,'bold');
+  const verdictText=s.total>=70?'Ready to go!':s.total>=40?'Getting there — a few gaps to close':'Needs work — but that is totally fixable';
+  doc.text(verdictText,pageW/2,y+8,{align:'center'});
+  y+=20;
+
+  doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(30,30,30);
+  doc.text('Your Answers',M,y);y+=7;
+
+  const rows=[
+    ['Main reason',selText('mainReason')],['Type of move',selText('moveType')],
+    ['Success vision',selVal('successVision')||'—'],['Age range',selText('ageRange')],
+    ['Languages',getChips('langChips')],['Education',selText('education')],
+    ['Passport',selText('passport')],['Stay length',selText('stayLength')],
+    ['Pathway',selText('pathway')],['Destination',selText('targetCountry')],
+    ['Work experience',selText('workExp')],['Documents ready',getChips('docsChips')],
+    ['Visa familiarity',selText('visaFamiliarity')],['Savings',selText('savings')],
+    ['Costs planned',getChips('costsChips')],['Prior abroad',selText('priorAbroad')],
+    ['Cultural gaps',getChips('cultureChips')],['Contacts there',selText('knownContacts')],
+    ['Communities',getChips('communityChips')],
+  ];
+  rows.forEach(([l,v],i)=>{
+    if(y>272){doc.addPage();y=20;}
+    if(i%2===0)doc.setFillColor(248,248,252);else doc.setFillColor(255,255,255);
+    doc.rect(M,y-3,col,8,'F');
+    doc.setFontSize(8);doc.setFont(undefined,'bold');doc.setTextColor(100,100,120);
+    doc.text(l,M+2,y+2);
+    doc.setFont(undefined,'normal');doc.setTextColor(30,30,30);
+    const lines=doc.splitTextToSize(String(v),col-55);
+    doc.text(lines[0],M+55,y+2);
+    y+=8;
+  });
+
+  if(selVal('extraNotes')){
+    if(y>260){doc.addPage();y=20;}
+    y+=4;doc.setFontSize(10);doc.setFont(undefined,'bold');doc.setTextColor(30,30,30);
+    doc.text('Additional notes',M,y);y+=6;
+    doc.setFont(undefined,'normal');doc.setFontSize(9);doc.setTextColor(60,60,60);
+    doc.text(doc.splitTextToSize(selVal('extraNotes'),col),M,y);
+  }
+
+  doc.setFillColor(108,99,255);doc.rect(0,284,210,13,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont(undefined,'normal');
+  doc.text('The Move Abroad Blueprint — Your journey starts here',M,291);
+  doc.text('Page 1',pageW-M,291,{align:'right'});
+  doc.save('Move_Abroad_Blueprint_Report.pdf');
+}
+
+function exportImage(){
+  const s=calcScores();
+  const c=scoreColor(s.total);
+  const cats=[
+    {label:'Motivation',val:s.motivation},
+    {label:'Legal',val:s.legal},
+    {label:'Finances',val:s.financial},
+    {label:'Culture',val:s.cultural},
+    {label:'Support',val:s.support},
+  ];
+
+  // Create canvas 1080x1080 (Instagram square)
+  const canvas=document.createElement('canvas');
+  canvas.width=1080;canvas.height=1080;
+  const ctx=canvas.getContext('2d');
+
+  // Background gradient
+  const grad=ctx.createLinearGradient(0,0,1080,1080);
+  grad.addColorStop(0,'#6C63FF');
+  grad.addColorStop(0.5,'#4a90d9');
+  grad.addColorStop(1,'#00C2FF');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,1080,1080);
+
+  // Decorative circles background
+  ctx.globalAlpha=0.07;
+  ctx.fillStyle='#fff';
+  ctx.beginPath();ctx.arc(900,150,300,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(100,900,250,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
+
+  // Stars / dots
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  [[80,60],[950,100],[200,300],[850,400],[60,700],[1000,600],[500,50]].forEach(([x,y])=>{
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+  });
+
+  // Top label
+  ctx.fillStyle='rgba(255,255,255,0.7)';
+  ctx.font='500 28px Poppins, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('THE MOVE ABROAD BLUEPRINT',540,90);
+
+  // Big score
+  ctx.fillStyle='#ffffff';
+  ctx.font='800 220px Poppins, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(s.total+'%',540,380);
+
+  // Label under score
+  const labelBg=s.total>=70?'rgba(29,158,117,0.25)':s.total>=40?'rgba(239,159,39,0.25)':'rgba(226,75,74,0.25)';
+  const labelText=s.total>=70?'Ready to go':'Getting there';
+  const lw=ctx.measureText(labelText).width;
+  ctx.fillStyle=labelBg;
+  roundRect(ctx,540-lw/2-30,400,lw+60,60,30);
+  ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='700 32px Poppins, sans-serif';
+  ctx.fillText(labelText,540,443);
+
+  // Category cards
+  const cardW=170;const cardH=110;const gap=16;
+  const totalW=cats.length*cardW+(cats.length-1)*gap;
+  const startX=(1080-totalW)/2;
+  const startY=510;
+
+  cats.forEach(({label,val},i)=>{
+    const x=startX+i*(cardW+gap);
+    const y=startY;
+    const cc=val>=70?'#1D9E75':val>=40?'#EF9F27':'#E24B4A';
+    const bg=val>=70?'rgba(29,158,117,0.15)':val>=40?'rgba(239,159,39,0.15)':'rgba(226,75,74,0.15)';
+
+    // Card bg
+    ctx.fillStyle=bg;
+    roundRect(ctx,x,y,cardW,cardH,16);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
+    roundRect(ctx,x,y,cardW,cardH,16);ctx.stroke();
+
+    // Score in card
+    ctx.fillStyle=cc;
+    ctx.font='700 42px Poppins, sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(val+'%',x+cardW/2,y+55);
+
+    // Label
+    ctx.fillStyle='rgba(255,255,255,0.75)';
+    ctx.font='500 20px Poppins, sans-serif';
+    ctx.fillText(label,x+cardW/2,y+85);
+
+    // Mini bar track
+    ctx.fillStyle='rgba(255,255,255,0.2)';
+    roundRect(ctx,x+16,y+94,cardW-32,6,3);ctx.fill();
+    ctx.fillStyle=cc;
+    roundRect(ctx,x+16,y+94,(cardW-32)*val/100,6,3);ctx.fill();
+  });
+
+  // Destination
+  const dest=selText('targetCountry');
+  if(dest&&dest!=='—'){
+    ctx.fillStyle='rgba(255,255,255,0.9)';
+    ctx.font='600 34px Poppins, sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('Destination: '+dest,540,700);
+  }
+
+  // Bottom CTA
+  ctx.fillStyle='rgba(255,255,255,0.15)';
+  roundRect(ctx,100,760,880,120,24);ctx.fill();
+  ctx.fillStyle='#ffffff';
+  ctx.font='700 36px Poppins, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('Are you ready to move abroad?',540,810);
+  ctx.font='400 26px Poppins, sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  ctx.fillText('Take the free quiz — link in bio',540,858);
+
+  // Creator tag
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.font='500 22px Poppins, sans-serif';
+  ctx.fillText('The Move Abroad Blueprint',540,990);
+
+  // Download as PNG
+  canvas.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='Move_Abroad_Blueprint_Instagram.png';
+    a.click();
+  });
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+renderDots();score();
+</script>
+</body>
+</html>
