@@ -758,7 +758,26 @@ function navigate(dir){
   renderDots();
 }
 
-);
+function getAIPlan(){
+  const s=calcScores();
+  const summary=`Main reason: ${selText('mainReason')}, Move type: ${selText('moveType')}, Target country: ${selText('targetCountry')}, Pathway: ${selText('pathway')}, Passport: ${selText('passport')}, Age: ${selText('ageRange')}, Education: ${selText('education')}, Work experience: ${selText('workExp')}, Savings: ${selText('savings')}, Prior abroad: ${selText('priorAbroad')}, Languages: ${getChips('langChips')}, Documents ready: ${getChips('docsChips')}, Costs planned: ${getChips('costsChips')}, Cultural gaps: ${getChips('cultureChips')}, Communities: ${getChips('communityChips')}, Contacts: ${selText('knownContacts')}, Overall readiness: ${s.total}%, Motivation: ${s.motivation}%, Legal: ${s.legal}%, Financial: ${s.financial}%, Cultural: ${s.cultural}%, Support: ${s.support}%`;
+  if(typeof sendPrompt==='function'){
+    sendPrompt(`Based on my Move Abroad Blueprint: ${summary}. Please give me a personalised action plan with: 1) my top 3 recommended countries, 2) the best visa pathway for me, 3) my biggest gaps to fix first, and 4) a 90-day action plan.`);
+  }
+}
+
+function exportPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const s=calcScores();
+  const pageW=210;const M=18;const col=pageW-M*2;
+
+  // Header
+  doc.setFillColor(108,99,255);doc.rect(0,0,210,50,'F');
+  doc.setFillColor(55,138,221);doc.rect(110,0,100,50,'F');
+  [[30,10],[170,8],[60,38],[150,35],[190,20],[20,30]].forEach(([x,y])=>{
+    doc.setFillColor(255,255,255);doc.circle(x,y,0.7,'F');
+  });
 
   doc.setTextColor(255,255,255);
   doc.setFontSize(8);doc.setFont(undefined,'bold');
@@ -954,12 +973,12 @@ function exportImage(){
   ctx.fillText('Are you ready to move abroad?',540,810);
   ctx.font='400 26px Poppins, sans-serif';
   ctx.fillStyle='rgba(255,255,255,0.8)';
-  ctx.fillText('Anyway.with.a',540,858);
+  ctx.fillText('Anyway.with.A',540,858);
 
   // Creator tag
   ctx.fillStyle='rgba(255,255,255,0.5)';
   ctx.font='500 22px Poppins, sans-serif';
-  ctx.fillText('Follow me for more @anyway.with.a',540,990);
+  ctx.fillText('Follow me for more @Anyway.with.A',540,990);
 
   // Download as PNG
   canvas.toBlob(blob=>{
@@ -984,4 +1003,3 @@ renderDots();score();
 </script>
 </body>
 </html>
-
