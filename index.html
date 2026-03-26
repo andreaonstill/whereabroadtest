@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Move Abroad Blueprint</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -134,52 +135,6 @@ optgroup{font-size:11px;color:var(--sub)}
 </style>
 </head>
 <body>
-  <div class="nav">
-  <button class="btn secondary" id="prevBtn" onclick="prevStep()" disabled>Previous</button>
-  <button class="btn primary" id="nextBtn" onclick="nextStep()">Next</button>
-</div>
-
-<script>
-let currentStep = 1;
-const totalSteps = 8;
-
-function showStep(step) {
-  for (let i = 1; i <= totalSteps; i++) {
-    document.getElementById('step' + i).classList.remove('active');
-  }
-  const stepEl = document.getElementById('step' + step);
-  if(stepEl) stepEl.classList.add('active');
-
-  // Update progress
-  const progress = (step / totalSteps) * 100;
-  document.getElementById('progressBar').style.width = progress + '%';
-  document.getElementById('progressPct').innerText = Math.round(progress) + '%';
-  document.getElementById('progressLbl').innerText = `Step ${step} / ${totalSteps}`;
-
-  // Enable/disable buttons
-  document.getElementById('prevBtn').disabled = step === 1;
-  document.getElementById('nextBtn').innerText = step === totalSteps ? 'Finish' : 'Next';
-}
-
-function nextStep() {
-  if(currentStep < totalSteps) {
-    currentStep++;
-    showStep(currentStep);
-  } else {
-    alert('All steps completed!'); // or handle form submission
-  }
-}
-
-function prevStep() {
-  if(currentStep > 1) {
-    currentStep--;
-    showStep(currentStep);
-  }
-}
-
-// Initialize
-showStep(currentStep);
-</script>
 <div class="app">
   <div class="progress-wrap">
     <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:12.5%"></div></div>
@@ -557,7 +512,6 @@ showStep(currentStep);
       </div>
 
       <div class="export-row">
-       <button class="btn ai-plan" onclick="goToInstagram()">Get personal help →</button>
         <button class="btn export-img" onclick="exportImage()">📸 Share to Instagram</button>
       </div>
     </div>
@@ -571,6 +525,7 @@ showStep(currentStep);
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 let current=1;const total=8;
 function updateRating(el){el.nextElementSibling.textContent=el.value}
@@ -775,21 +730,116 @@ function navigate(dir){
       buildSummary();
       sel('stepSummary').classList.add('active');
       sel('nextBtn').style.display='none';
-  const el = sel('step' + current);
-  if (el) el.classList.add('active');
-
-  const progress = Math.round((current / total) * 100);
-  sel('progressBar').style.width = progress + '%';
-  sel('progressLbl').textContent = 'Step ' + current + ' / ' + total;
-  sel('progressPct').textContent = progress + '%';
-
-  sel('backBtn').disabled = current === 1;
-
-
-function goToInstagram(){
-window.open("https://www.instagram.com/anyway.with.a/", ""Get personal help → (DM me)")
+      sel('progressBar').style.width='100%';
+      sel('progressLbl').textContent='Complete!';
+      sel('progressPct').textContent='100%';
+      renderDots();return;
+    }
+    current++;
+  }else if(dir===-1){
+    if(sel('stepSummary').classList.contains('active')){
+      sel('nextBtn').style.display='';
+      current=total;
+      sel('step'+current).classList.add('active');
+      sel('progressBar').style.width=(current/total*100)+'%';
+      sel('progressLbl').textContent='Step '+current+' / '+total;
+      sel('progressPct').textContent=Math.round(current/total*100)+'%';
+      sel('backBtn').disabled=false;
+      renderDots();return;
+    }
+    current=Math.max(1,current-1);
+  }
+  const el=sel('step'+current);
+  if(el)el.classList.add('active');
+  sel('progressBar').style.width=(current/total*100)+'%';
+  sel('progressLbl').textContent='Step '+current+' / '+total;
+  sel('progressPct').textContent=Math.round(current/total*100)+'%';
+  sel('backBtn').disabled=current===1;
+  renderDots();
 }
-  
+
+);
+
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(8);doc.setFont(undefined,'bold');
+  doc.text('THE MOVE ABROAD BLUEPRINT',M,13);
+  doc.setFontSize(22);doc.text('Your Readiness Report',M,26);
+  doc.setFontSize(9);doc.setFont(undefined,'normal');
+  doc.text('Personalised for you · '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),M,35);
+
+  const rgb=s.total>=70?[29,158,117]:s.total>=40?[239,159,39]:[226,75,74];
+  doc.setFillColor(255,255,255);doc.circle(185,25,16,'F');
+  doc.setTextColor(...rgb);doc.setFontSize(20);doc.setFont(undefined,'bold');
+  doc.text(s.total+'%',185,22,{align:'center'});
+  doc.setFontSize(7);doc.setFont(undefined,'normal');doc.setTextColor(120,120,120);
+  doc.text('READINESS',185,29,{align:'center'});
+
+  let y=60;
+  const cats=[['Motivation',s.motivation],['Legal',s.legal],['Finances',s.financial],['Culture',s.cultural],['Support',s.support]];
+  const cardW=(col/5)-2;
+  cats.forEach(([lbl,val],i)=>{
+    const cx=M+i*(cardW+2.5);
+    const cc=val>=70?[29,158,117]:val>=40?[239,159,39]:[226,75,74];
+    const bgcc=val>=70?[225,245,238]:val>=40?[250,238,218]:[252,235,235];
+    doc.setFillColor(...bgcc);doc.roundedRect(cx,y,cardW,22,2,2,'F');
+    doc.setTextColor(...cc);doc.setFontSize(14);doc.setFont(undefined,'bold');
+    doc.text(val+'%',cx+cardW/2,y+11,{align:'center'});
+    doc.setFontSize(7);doc.setFont(undefined,'normal');
+    doc.text(lbl.toUpperCase(),cx+cardW/2,y+18,{align:'center'});
+    doc.setFillColor(220,220,220);doc.roundedRect(cx+2,y+20,cardW-4,2,1,1,'F');
+    doc.setFillColor(...cc);doc.roundedRect(cx+2,y+20,(cardW-4)*val/100,2,1,1,'F');
+  });
+  y+=32;
+
+  const verdictBg=s.total>=70?[225,245,238]:s.total>=40?[250,238,218]:[252,235,235];
+  doc.setFillColor(...verdictBg);doc.roundedRect(M,y,col,12,3,3,'F');
+  doc.setTextColor(...rgb);doc.setFontSize(11);doc.setFont(undefined,'bold');
+  const verdictText=s.total>=70?'Ready to go!':s.total>=40?'Getting there — a few gaps to close':'Needs work — but that is totally fixable';
+  doc.text(verdictText,pageW/2,y+8,{align:'center'});
+  y+=20;
+
+  doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(30,30,30);
+  doc.text('Your Answers',M,y);y+=7;
+
+  const rows=[
+    ['Main reason',selText('mainReason')],['Type of move',selText('moveType')],
+    ['Success vision',selVal('successVision')||'—'],['Age range',selText('ageRange')],
+    ['Languages',getChips('langChips')],['Education',selText('education')],
+    ['Passport',selText('passport')],['Stay length',selText('stayLength')],
+    ['Pathway',selText('pathway')],['Destination',selText('targetCountry')],
+    ['Work experience',selText('workExp')],['Documents ready',getChips('docsChips')],
+    ['Visa familiarity',selText('visaFamiliarity')],['Savings',selText('savings')],
+    ['Costs planned',getChips('costsChips')],['Prior abroad',selText('priorAbroad')],
+    ['Cultural gaps',getChips('cultureChips')],['Contacts there',selText('knownContacts')],
+    ['Communities',getChips('communityChips')],
+  ];
+  rows.forEach(([l,v],i)=>{
+    if(y>272){doc.addPage();y=20;}
+    if(i%2===0)doc.setFillColor(248,248,252);else doc.setFillColor(255,255,255);
+    doc.rect(M,y-3,col,8,'F');
+    doc.setFontSize(8);doc.setFont(undefined,'bold');doc.setTextColor(100,100,120);
+    doc.text(l,M+2,y+2);
+    doc.setFont(undefined,'normal');doc.setTextColor(30,30,30);
+    const lines=doc.splitTextToSize(String(v),col-55);
+    doc.text(lines[0],M+55,y+2);
+    y+=8;
+  });
+
+  if(selVal('extraNotes')){
+    if(y>260){doc.addPage();y=20;}
+    y+=4;doc.setFontSize(10);doc.setFont(undefined,'bold');doc.setTextColor(30,30,30);
+    doc.text('Additional notes',M,y);y+=6;
+    doc.setFont(undefined,'normal');doc.setFontSize(9);doc.setTextColor(60,60,60);
+    doc.text(doc.splitTextToSize(selVal('extraNotes'),col),M,y);
+  }
+
+  doc.setFillColor(108,99,255);doc.rect(0,284,210,13,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont(undefined,'normal');
+  doc.text('The Move Abroad Blueprint — Your journey starts here',M,291);
+  doc.text('Page 1',pageW-M,291,{align:'right'});
+  doc.save('Move_Abroad_Blueprint_Report.pdf');
+}
+
 function exportImage(){
   const s=calcScores();
   const c=scoreColor(s.total);
@@ -904,18 +954,18 @@ function exportImage(){
   ctx.fillText('Are you ready to move abroad?',540,810);
   ctx.font='400 26px Poppins, sans-serif';
   ctx.fillStyle='rgba(255,255,255,0.8)';
-  ctx.fillText('@anyway.with.a',540,858);
+  ctx.fillText('Anyway.with.a',540,858);
 
   // Creator tag
   ctx.fillStyle='rgba(255,255,255,0.5)';
   ctx.font='500 22px Poppins, sans-serif';
-  ctx.fillText('Send me a DM',540,990);
+  ctx.fillText('Follow me for more @anyway.with.a',540,990);
 
   // Download as PNG
   canvas.toBlob(blob=>{
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='MoveAbroadBlueprint_Anyway.With.A.png';
+    a.download='Move_Abroad_Blueprint_Instagram.png';
     a.click();
   });
 }
@@ -929,9 +979,9 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
   ctx.closePath();
 }
-      
-renderDots();
-score();
+
+renderDots();score();
 </script>
 </body>
 </html>
+
