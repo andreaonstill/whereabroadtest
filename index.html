@@ -134,6 +134,52 @@ optgroup{font-size:11px;color:var(--sub)}
 </style>
 </head>
 <body>
+  <div class="nav">
+  <button class="btn secondary" id="prevBtn" onclick="prevStep()" disabled>Previous</button>
+  <button class="btn primary" id="nextBtn" onclick="nextStep()">Next</button>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 8;
+
+function showStep(step) {
+  for (let i = 1; i <= totalSteps; i++) {
+    document.getElementById('step' + i).classList.remove('active');
+  }
+  const stepEl = document.getElementById('step' + step);
+  if(stepEl) stepEl.classList.add('active');
+
+  // Update progress
+  const progress = (step / totalSteps) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+  document.getElementById('progressPct').innerText = Math.round(progress) + '%';
+  document.getElementById('progressLbl').innerText = `Step ${step} / ${totalSteps}`;
+
+  // Enable/disable buttons
+  document.getElementById('prevBtn').disabled = step === 1;
+  document.getElementById('nextBtn').innerText = step === totalSteps ? 'Finish' : 'Next';
+}
+
+function nextStep() {
+  if(currentStep < totalSteps) {
+    currentStep++;
+    showStep(currentStep);
+  } else {
+    alert('All steps completed!'); // or handle form submission
+  }
+}
+
+function prevStep() {
+  if(currentStep > 1) {
+    currentStep--;
+    showStep(currentStep);
+  }
+}
+
+// Initialize
+showStep(currentStep);
+</script>
 <div class="app">
   <div class="progress-wrap">
     <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:12.5%"></div></div>
